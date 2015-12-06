@@ -1,0 +1,10 @@
+cflags = -Wall
+ldflags = -lncurses
+
+rule cc
+     command = gcc $cflags -c $in -o $out
+rule link
+     command = gcc -o $out $in $ldflags
+
+build demo.o: cc demo.c
+build demo: link demo.o
