@@ -1,6 +1,7 @@
 import CNCurses
 import CLibUV
 import CZMQ
+import Glibc
 
 let loop = uv_default_loop()
 uv_run(loop, UV_RUN_DEFAULT)
@@ -31,19 +32,18 @@ while i < 10000 {
 clear()
 echo()
 move(0,0)
-var str = UnsafeMutablePointer<Int8>.alloc(1)
+var str = UnsafeMutablePointer<CChar>.alloc(256)
 getstr(str)
 endwin()
 print("str: \(String.fromCString(str))")
 
-if let str1 = String.fromCString(str) {
-    zmq_send(requester, str, str1.characters.count, 0)
-}
+zmq_send(requester, str, Int(strlen(str)), 0)
+
 print("connected")
 
-var buffer = UnsafeMutablePointer<Int8>.alloc(1)
-zmq_recv(requester, buffer, 10, 0)
-print("recv? \(String.fromCString(buffer))")
+var buffer = UnsafeMutablePointer<CChar>.alloc(256)
+var size = zmq_recv(requester, buffer, 255, 0)
+print("recv? \(size):\(String.fromCString(buffer))")
 
 zmq_close(requester)
 print("connected")
